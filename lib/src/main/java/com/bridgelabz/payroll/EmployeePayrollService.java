@@ -32,5 +32,4 @@ public class EmployeePayrollService {
 	private void writeEmployeePayrollData() {
 		System.out.println("\n writing Employee payroll roaster to console \n"+ employeePayrollList);
 	}
-
 }
