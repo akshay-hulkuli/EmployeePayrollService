@@ -1,0 +1,3 @@
+id: 1 name: Jeff Bezos salary: 10000.0
+id: 2 name: Bill Gates salary: 20000.0
+id: 3 name: Mark Zuckerberg salary: 30000.0
