@@ -16,7 +16,7 @@ public class EmployeePayrollService {
 	EmployeePayrollService employeePayrollService = new EmployeePayrollService(employeePayrollList);
 	Scanner consoleInputReader = new Scanner(System.in);
 	employeePayrollService.readEmployeePayrollData(consoleInputReader);
-	employeePayrollService.writeEmployeePayrollData();
+	employeePayrollService.writeEmployeePayrollData(IOService.CONSOLE_IO);
 	}
 	
 	private void readEmployeePayrollData(Scanner consoleInputReader) {
@@ -29,7 +29,23 @@ public class EmployeePayrollService {
 		employeePayrollList.add(new EmployeePayrollData(id, name, salary));
 	}
 	
-	private void writeEmployeePayrollData() {
+	public void writeEmployeePayrollData(IOService ioService) {
+		if(ioService.equals(IOService.CONSOLE_IO))
 		System.out.println("\n writing Employee payroll roaster to console \n"+ employeePayrollList);
+		else if(ioService.equals(IOService.FILE_IO))
+			new EmployeePayrollFileIOService().writeData(employeePayrollList);
+	}
+	
+	public void printData(IOService ioService) {
+		if(ioService.equals(IOService.FILE_IO)) {
+			new EmployeePayrollFileIOService().printData();
+		}
+	}
+	
+	public long countEntries(IOService ioService) {
+		if(ioService.equals(IOService.FILE_IO)) {
+			return new EmployeePayrollFileIOService().countEntries();
+		}
+		return 0;
 	}
 }
