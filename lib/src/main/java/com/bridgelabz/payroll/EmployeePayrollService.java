@@ -29,6 +29,26 @@ public class EmployeePayrollService {
 		employeePayrollList.add(new EmployeePayrollData(id, name, salary));
 	}
 	
+	public List<EmployeePayrollData> readEmployeePayrollDataDB(IOService type){
+		if(type.equals(IOService.DB_IO)) {
+			this.employeePayrollList = new EmployeePayrollDBService().readData();
+		}
+		return this.employeePayrollList;
+	}
+	
+	public void updateEmployeeSalary(String name, double salary) {
+		int result = new EmployeePayrollDBService().updateEmployeeSalary(name, salary);
+		if (result == 0) return;
+		EmployeePayrollData employeePayrollData = this.getEmployeePayrollData(name);
+		if( employeePayrollData != null) employeePayrollData.salary = salary;
+	}
+	
+	private EmployeePayrollData getEmployeePayrollData(String name) {
+		return this.employeePayrollList.stream()
+				   .filter(employeePayrolldata -> employeePayrolldata.name.equals(name))
+				   .findFirst()
+				   .orElse(null);
+	}
 	public void writeEmployeePayrollData(IOService ioService) {
 		if(ioService.equals(IOService.CONSOLE_IO))
 		System.out.println("\n writing Employee payroll roaster to console \n"+ employeePayrollList);
