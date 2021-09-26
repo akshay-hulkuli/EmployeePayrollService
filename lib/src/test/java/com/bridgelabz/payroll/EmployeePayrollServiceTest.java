@@ -3,7 +3,7 @@ package com.bridgelabz.payroll;
 import org.junit.Assert;
 import org.junit.Test;
 import java.util.*;
-import static com.bridgelabz.payroll.EmployeePayrollService.IOService.FILE_IO;
+import static com.bridgelabz.payroll.EmployeePayrollService.IOService.*;
 public class EmployeePayrollServiceTest {
 
 	@Test
@@ -27,5 +27,22 @@ public class EmployeePayrollServiceTest {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		long entries = employeePayrollService.readEmployeePayrollData(FILE_IO);
 		Assert.assertEquals(3,entries);
+	}
+	
+	@Test
+	public void givenEmployeePayrollInDB_WhenRetrived_ShouldatchEmployeeCount()
+	{
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
+		Assert.assertEquals(3, employeePayrollData.size());
+	}
+	@Test
+	public void givenNewSalaryForEmpoyee_WhenUpdated_ShouldSyncWithDB()
+	{
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
+		employeePayrollService.updateEmployeeSalary("Tanisha",5000000.00);
+		employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
+		System.out.println(employeePayrollData);
 	}
 }
