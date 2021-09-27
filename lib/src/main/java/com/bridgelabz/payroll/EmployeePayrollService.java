@@ -95,4 +95,36 @@ public class EmployeePayrollService {
 	public List<EmployeePayrollData> getEmpInADateRange(String date1, String date2){
 		return employeePayrollDBService.getEmployeesInDateRange(date1, date2);
 	}
+	
+	public Map<Character, Double> getGenderWiseTotalSalary(IOService type){
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		if(type.equals(IOService.DB_IO))
+			salaryMap = employeePayrollDBService.getGenderWiseTotalSalary();
+		return salaryMap;
+	}
+	public Map<Character, Double> getGenderWiseMinSalary(IOService type){
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		if(type.equals(IOService.DB_IO))
+			salaryMap = employeePayrollDBService.getGenderWiseMinSalary();
+		return salaryMap;
+	}
+	public Map<Character, Double> getGenderWiseMaxSalary(IOService type){
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		if(type.equals(IOService.DB_IO))
+			salaryMap = employeePayrollDBService.getGenderWiseMaxSalary();
+		return salaryMap;
+	}
+	public Map<Character, Double> getGenderWiseAvgSalary(IOService type){
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		if(type.equals(IOService.DB_IO))
+			salaryMap = employeePayrollDBService.getGenderWiseAvgSalary();
+		return salaryMap;
+	}
+	public Map<Character, Integer> getGenderWiseCount(IOService type){
+		HashMap<Character,Integer> countMap = new HashMap<>();
+		if(type.equals(IOService.DB_IO))
+			countMap = employeePayrollDBService.getGenderWiseCount();
+		return countMap;
+	}
+	
 }
