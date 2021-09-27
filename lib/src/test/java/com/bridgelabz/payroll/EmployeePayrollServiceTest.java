@@ -79,4 +79,50 @@ public class EmployeePayrollServiceTest {
 		System.out.println(empList);
 		Assert.assertEquals(2, empList.size());
 	}
+	
+	@Test
+	public void givenEmployeePayrollInDB_ShouldReturnSumOfSalaryBasedOnGender() {
+		
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		Map<Character, Double> salaryMap = employeePayrollService.getGenderWiseTotalSalary(DB_IO);
+		Assert.assertEquals((double)salaryMap.get('F'),5000000,0.0);
+		Assert.assertEquals((double)salaryMap.get('M'),400000,0.0);
+	}
+	
+	@Test
+	public void givenEmployeePayrollInDB_ShouldReturnMinSalaryBasedOnGender() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		Map<Character, Double> salaryMap = employeePayrollService.getGenderWiseMinSalary(DB_IO);
+		Assert.assertEquals((double)salaryMap.get('F'),5000000,0.0);
+		Assert.assertEquals((double)salaryMap.get('M'),100000,0.0);
+		
+	}
+	
+	@Test
+	public void givenEmployeePayrollInDB_ShouldReturnAverageSalaryBasedOnGender() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		Map<Character, Double> salaryMap = employeePayrollService.getGenderWiseAvgSalary(DB_IO);
+		Assert.assertEquals((double)salaryMap.get('F'),5000000,0.0);
+		Assert.assertEquals((double)salaryMap.get('M'),200000,0.0);
+		
+	}
+	
+	@Test
+	public void givenEmployeePayrollInDB_ShouldReturnMaximumSalaryBasedOnGender() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		Map<Character, Double> salaryMap = employeePayrollService.getGenderWiseMaxSalary(DB_IO);
+		Assert.assertEquals((double)salaryMap.get('F'),5000000,0.0);
+		Assert.assertEquals((double)salaryMap.get('M'),300000,0.0);
+		
+	}
+	
+	@Test
+	public void givenEmployeePayrollInDB_ShouldReturnCountOfBasedOnGender() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		Map<Character, Integer> countMap = employeePayrollService.getGenderWiseCount(DB_IO);
+		Assert.assertEquals((int)countMap.get('F'),1);
+		Assert.assertEquals((int)countMap.get('M'),2);
+		
+	}
+	
 }
