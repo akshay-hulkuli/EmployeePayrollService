@@ -24,4 +24,13 @@ public class EmployeePayrollData {
 		return "id: "+this.id+" name: "+this.name+" salary: "+this.salary;
 	}
 	
+	@Override
+	public boolean equals( Object obj) {
+		if(obj == this) return true;
+		if(obj == null || getClass() != obj.getClass()) return false;
+		
+		EmployeePayrollData that = (EmployeePayrollData) obj;
+		return this.id == that.id && this.name.equals(that.name) && Double.compare(that.salary, this.salary) ==0;
+	}
+	
 }
