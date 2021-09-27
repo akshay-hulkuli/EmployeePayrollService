@@ -2,6 +2,7 @@ package com.bridgelabz.payroll;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.mysql.jdbc.Connection;
@@ -36,20 +37,25 @@ public class EmployeePayrollDBService {
 		return employeePayrollList;
 	}
 	
-	public Connection getConnection() throws SQLException
+	public Connection getConnection() throws EmployeePayrollException
 	{
-		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?userSSL=false";
-		String userName = "root";
-		String password = "Root$241";
 		Connection connection;
-		System.out.println("Connecting to database:"+jdbcURL);
-		connection =  (Connection) DriverManager.getConnection(jdbcURL,userName,password);
-		System.out.println("Connection is successful!!!!"+connection);
+		try {
+			String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?userSSL=false";
+			String userName = "root";
+			String password = "Root$241";
+			System.out.println("Connecting to database:"+jdbcURL);
+			connection =  (Connection) DriverManager.getConnection(jdbcURL,userName,password);
+			System.out.println("Connection is successful!!!!"+connection);
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.FAILED_TO_CONNECT, "Failed to connect to database");
+		}
 		return connection;
 	
 	}
 	
-	public int updateEmployeeSalary(String name, double salary) {
+	public int updateEmployeeSalary(String name, double salary) throws EmployeePayrollException {
 		return this.updateEmployeeDataUsingStatement(name,salary);
 	}
 	
@@ -61,9 +67,8 @@ public class EmployeePayrollDBService {
 		
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.UPDATE_FAILED, "Failed to update the given data");
 		}
-		return 0;
 	
 	}
 	
@@ -163,6 +168,96 @@ public class EmployeePayrollDBService {
 		}
 		
 		return employeePayrollList;
+	}
+	
+	public HashMap<Character, Double> getGenderWiseTotalSalary() throws EmployeePayrollException{
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		String sql = "SELECT gender , SUM(salary) as 'SUM'  FROM employee_payroll GROUP BY gender;";
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				char key = result.getString("gender").charAt(0);
+				double value = result.getDouble("SUM");
+				salaryMap.put(key, value);
+			}
+		}
+		catch (SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
+		}	
+		return salaryMap;
+	}
+	
+	public HashMap<Character, Double> getGenderWiseMinSalary() throws EmployeePayrollException{
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		String sql = "SELECT gender , MIN(salary) as 'MIN'  FROM employee_payroll GROUP BY gender;";
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				char key = result.getString("gender").charAt(0);
+				double value = result.getDouble("MIN");
+				salaryMap.put(key, value);
+			}
+		}
+		catch (SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
+		}	
+		return salaryMap;
+	}
+	
+	public HashMap<Character, Double> getGenderWiseMaxSalary() throws EmployeePayrollException{
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		String sql = "SELECT gender , MAX(salary) as 'MAX'  FROM employee_payroll GROUP BY gender;";
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				char key = result.getString("gender").charAt(0);
+				double value = result.getDouble("MAX");
+				salaryMap.put(key, value);
+			}
+		}
+		catch (SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
+		}	
+		return salaryMap;
+	}
+	
+	public HashMap<Character, Double> getGenderWiseAvgSalary() throws EmployeePayrollException{
+		HashMap<Character,Double> salaryMap = new HashMap<>();
+		String sql = "SELECT gender , AVG(salary) as 'AVG'  FROM employee_payroll GROUP BY gender;";
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				char key = result.getString("gender").charAt(0);
+				double value = result.getDouble("Avg");
+				salaryMap.put(key, value);
+			}
+		}
+		catch (SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
+		}	
+		return salaryMap;
+	}
+	
+	public HashMap<Character, Integer> getGenderWiseCount() throws EmployeePayrollException{
+		HashMap<Character,Integer> countMap = new HashMap<>();
+		String sql = "SELECT gender , COUNT(salary) as 'COUNT'  FROM employee_payroll GROUP BY gender;";
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				char key = result.getString("gender").charAt(0);
+				int value = result.getInt("COUNT");
+				countMap.put(key, value);
+			}
+		}
+		catch (SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
+		}	
+		return countMap;
 	}
 
 
