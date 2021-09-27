@@ -91,4 +91,8 @@ public class EmployeePayrollService {
 		
 		return 0;
 	}
+	
+	public List<EmployeePayrollData> getEmpInADateRange(String date1, String date2){
+		return employeePayrollDBService.getEmployeesInDateRange(date1, date2);
+	}
 }
