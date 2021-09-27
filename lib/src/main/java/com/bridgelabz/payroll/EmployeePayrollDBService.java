@@ -147,6 +147,23 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 	}
+	
+	public List<EmployeePayrollData> getEmployeesInDateRange(String date1, String date2) {
+		List<EmployeePayrollData> employeePayrollList = null;
+		String sql = String.format("select * from employee_payroll where start between cast('%s' as date) and cast('%s' as date)",date1,date2);
+		try {
+			Connection connection = this.getConnection();
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			employeePayrollList = this.getEmployeePayrollData(result);
+			connection.close();
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return employeePayrollList;
+	}
 
 
 }
