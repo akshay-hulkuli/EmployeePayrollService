@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import static com.bridgelabz.payroll.EmployeePayrollService.IOService.*;
 public class EmployeePayrollServiceTest {
-
+    int size = 3;
 	@Test
 	public void given3EmployeesWhenWrittenToFileShouldMatchEmployeeEntries() {
 		EmployeePayrollData[] arrayOfEmps = {
@@ -37,12 +37,12 @@ public class EmployeePayrollServiceTest {
 	{
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
-		Assert.assertEquals(3, employeePayrollData.size());
+		Assert.assertEquals(size, employeePayrollData.size());
 	}
 
 	
 	@Test
-	public void givenListOfEmployees_WhenInsertedToList_ShouldMatchEmployeeEntries() {
+	public void givenListOfEmployees_WhenInserted_ShouldMatchEmployeeEntries() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
 		String date = "16/08/2019";
 		LocalDate startDate1 = LocalDate.parse(date, formatter);
@@ -53,7 +53,7 @@ public class EmployeePayrollServiceTest {
 				new EmployeePayrollData(5, "Jeff Bezos",'M', 10000,startDate1),
 				new EmployeePayrollData(6, "Bill Gates",'M', 20000,startDate2)
 		};
-		
+		size += 2;
 		EmployeePayrollService employeePayrollService;
 		employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
 		employeePayrollService.writeEmployeePayrollData(DB_IO);
@@ -69,5 +69,14 @@ public class EmployeePayrollServiceTest {
 		employeePayrollService.updateEmployeeSalary("Tanisha",5000000.00);
 		boolean result = employeePayrollService.checkEmployeePayrollInsyncWithDB("Tanisha");
 		Assert.assertTrue(result);
+	}
+	
+	@Test
+	public void givenDateRange_WhenQueried_ShouldReturnEmployeeList()
+	{
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<EmployeePayrollData> empList = employeePayrollService.getEmpInADateRange("2019-01-01","2021-01-01");
+		System.out.println(empList);
+		Assert.assertEquals(2, empList.size());
 	}
 }
