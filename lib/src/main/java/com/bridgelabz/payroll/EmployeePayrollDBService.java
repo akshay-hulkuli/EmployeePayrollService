@@ -9,7 +9,16 @@ import java.sql.*;
 
 public class EmployeePayrollDBService {
 
-
+	private PreparedStatement employeePayrollDataStatement;
+	private static EmployeePayrollDBService employeePayrollDBService;
+	private EmployeePayrollDBService() {}
+	
+	public static EmployeePayrollDBService getInstance() {
+		if(employeePayrollDBService == null) {
+			employeePayrollDBService = new EmployeePayrollDBService();
+		}
+		return employeePayrollDBService;
+	}
 	
 	public List<EmployeePayrollData> readData() {
 		String sql = "SELECT * FROM employee_payroll";
@@ -18,14 +27,7 @@ public class EmployeePayrollDBService {
 			Connection connection = this.getConnection();
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
-			while(result.next()) {
-				int id = result.getInt("id");
-				String name = result.getString("name");
-				char gender = result.getString("gender").charAt(0);
-				double salary = result.getDouble("salary");
-				LocalDate startDate = result.getDate("start").toLocalDate();
-				employeePayrollList.add(new EmployeePayrollData(id, name,gender, salary,startDate));
-			}
+			employeePayrollList = this.getEmployeePayrollData(result);
 			connection.close();
 		}
 		catch(SQLException e) {
@@ -98,6 +100,52 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 		return count;
+	}
+
+	public List<EmployeePayrollData> getEmployeePayrollData(String name) {
+		List<EmployeePayrollData> employeePayrollDataList = null;
+		if(this.employeePayrollDataStatement == null) {
+			this.prepareStatementForEmployeeData();
+		}
+		try {
+			employeePayrollDataStatement.setString(1, name);
+			ResultSet resultSet = employeePayrollDataStatement.executeQuery();
+			employeePayrollDataList = this.getEmployeePayrollData(resultSet);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return employeePayrollDataList;
+	}
+	
+	private List<EmployeePayrollData> getEmployeePayrollData(ResultSet resultSet) {
+		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
+		
+		try {
+			while(resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String name = resultSet.getString("name");
+				char gender = resultSet.getString("gender").charAt(0);
+				double basicSalary = resultSet.getDouble("salary");
+				LocalDate startDate = resultSet.getDate("start").toLocalDate();
+				employeePayrollList.add(new EmployeePayrollData(id, name, gender,basicSalary, startDate));
+			}
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return employeePayrollList;
+	}
+
+	private void prepareStatementForEmployeeData() {
+		try {
+			Connection connection = this.getConnection();
+			String sqlStatement = "select * from employee_payroll where name = ?;";
+			employeePayrollDataStatement = connection.prepareStatement(sqlStatement);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 
