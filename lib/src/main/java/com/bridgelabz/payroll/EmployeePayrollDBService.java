@@ -21,9 +21,10 @@ public class EmployeePayrollDBService {
 			while(result.next()) {
 				int id = result.getInt("id");
 				String name = result.getString("name");
+				char gender = result.getString("gender").charAt(0);
 				double salary = result.getDouble("salary");
 				LocalDate startDate = result.getDate("start").toLocalDate();
-				employeePayrollList.add(new EmployeePayrollData(id, name, salary,startDate));
+				employeePayrollList.add(new EmployeePayrollData(id, name,gender, salary,startDate));
 			}
 			connection.close();
 		}
@@ -62,6 +63,41 @@ public class EmployeePayrollDBService {
 		}
 		return 0;
 	
+	}
+	
+	public void writeDB(List<EmployeePayrollData> employees) {
+		employees.stream().forEach(employee ->{
+			String sql = String.format("INSERT INTO employee_payroll(name,gender,salary,start)VALUES('%s','%s','%2f','%s')",employee.name,employee.gender,
+										employee.salary,employee.startDate.toString());
+			try {
+				Connection connection = this.getConnection();
+				Statement statement = connection.createStatement();
+				int result = statement.executeUpdate(sql);
+				connection.close();
+			}
+			catch(SQLException e) {
+				e.printStackTrace();
+			}
+		});
+		
+	}
+	
+	public int countEntries() {
+		String sql = "SELECT * FROM employee_payroll";
+		int count  =0;
+		try {
+			Connection connection = this.getConnection();
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				count++;
+			}
+			connection.close();
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return count;
 	}
 
 
