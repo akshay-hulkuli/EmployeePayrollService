@@ -39,15 +39,7 @@ public class EmployeePayrollServiceTest {
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
 		Assert.assertEquals(3, employeePayrollData.size());
 	}
-	@Test
-	public void givenNewSalaryForEmpoyee_WhenUpdated_ShouldSyncWithDB()
-	{
-		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
-		employeePayrollService.updateEmployeeSalary("Tanisha",5000000.00);
-		employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
-		System.out.println(employeePayrollData);
-	}
+
 	
 	@Test
 	public void givenListOfEmployees_WhenInsertedToList_ShouldMatchEmployeeEntries() {
@@ -67,5 +59,15 @@ public class EmployeePayrollServiceTest {
 		employeePayrollService.writeEmployeePayrollData(DB_IO);
 		long entries = employeePayrollService.countEntries(DB_IO);
 		Assert.assertEquals(5,entries);
+	}
+	
+	@Test
+	public void givenNewSalaryForEmpoyee_WhenUpdated_ShouldSyncWithDB()
+	{
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollDataDB(DB_IO);
+		employeePayrollService.updateEmployeeSalary("Tanisha",5000000.00);
+		boolean result = employeePayrollService.checkEmployeePayrollInsyncWithDB("Tanisha");
+		Assert.assertTrue(result);
 	}
 }
