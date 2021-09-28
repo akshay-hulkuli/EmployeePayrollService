@@ -130,4 +130,11 @@ public class EmployeePayrollService {
 		return countMap;
 	}
 	
+	public int insertDepartment(Department dept) {
+		return employeePayrollDBService.insertDepartment(dept);
+	}
+	public int insertCompany(Company company) {
+		return employeePayrollDBService.insertCompany(company);
+	}
+	
 }
