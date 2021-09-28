@@ -3,6 +3,7 @@ package com.bridgelabz.payroll;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.mysql.jdbc.Connection;
@@ -22,19 +23,89 @@ public class EmployeePayrollDBService {
 	}
 	
 	public List<EmployeePayrollData> readData() {
-		String sql = "SELECT * FROM employee_payroll";
+		String sql = "SELECT * from employee e , payroll p where e.id = p.employee_id;";
+		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
+		HashMap<Integer, Company> companyMap = getCompany();
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
 		try {
 			Connection connection = this.getConnection();
 			Statement statement = connection.createStatement();
-			ResultSet result = statement.executeQuery(sql);
-			employeePayrollList = this.getEmployeePayrollData(result);
+			ResultSet resultSet = statement.executeQuery(sql);
+			while(resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String name = resultSet.getString("name");
+				char gender = resultSet.getString("gender").charAt(0);
+				double basicSalary = resultSet.getDouble("basicPay");
+				LocalDate startDate = resultSet.getDate("start").toLocalDate();
+				String phoneNumber = String.valueOf(resultSet.getLong("phoneNumber"));
+				int company_id = resultSet.getInt("company_id");
+				String address = resultSet.getString("address");
+				employeePayrollList.add(new EmployeePayrollData(id, name, gender, basicSalary, address, phoneNumber, startDate,companyMap.get(company_id) , departmentList.get(id)));
+			}
+			
 			connection.close();
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
 		}
 		return employeePayrollList;
+	}
+	
+	private HashMap<Integer,Company> getCompany(){
+		HashMap<Integer, Company> companyMap = new HashMap<>();
+		String sql = "select * from company";
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				int id  = result.getInt("company_id");
+				String name  = result.getString("company_name");
+				companyMap.put(id, new Company(name, id));
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		return companyMap;
+	}
+	
+	private HashMap<Integer,ArrayList<Department>> getDepartmentList(){
+		HashMap<Integer,ArrayList<Department>> departmentList = new HashMap<>();
+		String sql = "select * from employee_department";
+		HashMap<String,Department> deptMap = getDepartment();
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				int empId = result.getInt("employee_id");
+				String deptId = result.getString("department_id");
+				if(departmentList.get(empId) == null) departmentList.put(empId, new ArrayList<Department>());
+				departmentList.get(empId).add(deptMap.get(deptId));
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		return departmentList;
+	}
+	
+	private HashMap<String,Department> getDepartment(){
+		String sql = "select * from department";
+		HashMap<String,Department> set = new HashMap<>();
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				String id = result.getString("department_id");
+				String name  = result.getString("department_name");
+				String hod  = result.getString("hod");
+				set.put(id,new Department(name, id, hod));
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		return set;
 	}
 	
 	public Connection getConnection() throws EmployeePayrollException
