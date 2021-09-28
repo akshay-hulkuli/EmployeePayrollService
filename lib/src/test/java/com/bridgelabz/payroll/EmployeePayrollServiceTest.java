@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import static com.bridgelabz.payroll.EmployeePayrollService.IOService.*;
 public class EmployeePayrollServiceTest {
-    int size = 3;
+	static int  size = 3;
 	@Test
 	public void given3EmployeesWhenWrittenToFileShouldMatchEmployeeEntries() {
 		EmployeePayrollData[] arrayOfEmps = {
@@ -43,12 +43,13 @@ public class EmployeePayrollServiceTest {
 	
 	@Test
 	public void givenEmployee_WhenInserted_ShouldMatchEmployeeEntries() {
+		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
 		String date = "16/08/2019";
 		LocalDate startDate = LocalDate.parse(date, formatter);
 		size += 1;
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
-		employeePayrollService.addEmployeeToPayroll("arun",100000.00,startDate,'M' );
+		employeePayrollService.addEmployeeToPayroll("arun",100000.00,startDate,'M',"bengaluru","8974561236","D001",1);
 		boolean result = employeePayrollService.checkEmployeePayrollInsyncWithDB("arun");
 		Assert.assertTrue(result);
 	}
