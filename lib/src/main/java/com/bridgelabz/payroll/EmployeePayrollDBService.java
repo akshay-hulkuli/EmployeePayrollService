@@ -310,7 +310,7 @@ public class EmployeePayrollDBService {
 	
 	public List<EmployeePayrollData> getEmployeesInDateRange(String date1, String date2) {
 		List<EmployeePayrollData> employeePayrollList = null;
-		String sql = String.format("select * from employee_payroll where start between cast('%s' as date) and cast('%s' as date)",date1,date2);
+		String sql = String.format("select * from employee e, payroll p where e.id = p.employee_id and start between cast('%s' as date) and cast('%s' as date)",date1,date2);
 		try {
 			Connection connection = this.getConnection();
 			Statement statement = connection.createStatement();
@@ -327,7 +327,7 @@ public class EmployeePayrollDBService {
 	
 	public HashMap<Character, Double> getGenderWiseTotalSalary() throws EmployeePayrollException{
 		HashMap<Character,Double> salaryMap = new HashMap<>();
-		String sql = "SELECT gender , SUM(salary) as 'SUM'  FROM employee_payroll GROUP BY gender;";
+		String sql = "SELECT gender , SUM(basicPay) as 'SUM'  FROM employee e, payroll p WHERE e.id = p.employee_id GROUP BY gender;";
 		try(Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
@@ -345,7 +345,7 @@ public class EmployeePayrollDBService {
 	
 	public HashMap<Character, Double> getGenderWiseMinSalary() throws EmployeePayrollException{
 		HashMap<Character,Double> salaryMap = new HashMap<>();
-		String sql = "SELECT gender , MIN(salary) as 'MIN'  FROM employee_payroll GROUP BY gender;";
+		String sql = "SELECT gender , MIN(basicPay) as 'MIN'  FROM employee e, payroll p WHERE e.id = p.employee_id GROUP BY gender;";
 		try(Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
@@ -363,7 +363,7 @@ public class EmployeePayrollDBService {
 	
 	public HashMap<Character, Double> getGenderWiseMaxSalary() throws EmployeePayrollException{
 		HashMap<Character,Double> salaryMap = new HashMap<>();
-		String sql = "SELECT gender , MAX(salary) as 'MAX'  FROM employee_payroll GROUP BY gender;";
+		String sql = "SELECT gender , MAX(basicPay) as 'MAX'  FROM employee e, payroll p WHERE e.id = p.employee_id GROUP BY gender;";
 		try(Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
@@ -381,7 +381,7 @@ public class EmployeePayrollDBService {
 	
 	public HashMap<Character, Double> getGenderWiseAvgSalary() throws EmployeePayrollException{
 		HashMap<Character,Double> salaryMap = new HashMap<>();
-		String sql = "SELECT gender , AVG(salary) as 'AVG'  FROM employee_payroll GROUP BY gender;";
+		String sql = "SELECT gender , AVG(basicPay) as 'AVG'  FROM employee e, payroll p WHERE e.id = p.employee_id GROUP BY gender;";
 		try(Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
@@ -399,7 +399,7 @@ public class EmployeePayrollDBService {
 	
 	public HashMap<Character, Integer> getGenderWiseCount() throws EmployeePayrollException{
 		HashMap<Character,Integer> countMap = new HashMap<>();
-		String sql = "SELECT gender , COUNT(salary) as 'COUNT'  FROM employee_payroll GROUP BY gender;";
+		String sql = "SELECT gender , COUNT(basicPay) as 'COUNT'  FROM employee e, payroll p WHERE e.id = p.employee_id GROUP BY gender;";
 		try(Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
