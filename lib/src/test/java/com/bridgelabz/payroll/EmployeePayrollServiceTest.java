@@ -45,20 +45,12 @@ public class EmployeePayrollServiceTest {
 	public void givenListOfEmployees_WhenInserted_ShouldMatchEmployeeEntries() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
 		String date = "16/08/2019";
-		LocalDate startDate1 = LocalDate.parse(date, formatter);
-		date = "01/08/2020";
-		LocalDate startDate2 = LocalDate.parse(date, formatter);
-
-		EmployeePayrollData[] arrayOfEmps = {
-				new EmployeePayrollData(5, "Jeff Bezos",'M', 10000,startDate1),
-				new EmployeePayrollData(6, "Bill Gates",'M', 20000,startDate2)
-		};
-		size += 2;
-		EmployeePayrollService employeePayrollService;
-		employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
-		employeePayrollService.writeEmployeePayrollData(DB_IO);
-		long entries = employeePayrollService.countEntries(DB_IO);
-		Assert.assertEquals(5,entries);
+		LocalDate startDate = LocalDate.parse(date, formatter);
+		size += 1;
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
+		employeePayrollService.addEmployeeToPayroll("arun",100000.00,startDate,'M' );
+		boolean result = employeePayrollService.checkEmployeePayrollInsyncWithDB("arun");
+		Assert.assertTrue(result);
 	}
 	
 	@Test
