@@ -154,7 +154,7 @@ public class EmployeePayrollDBService {
 		return employeePayrollData;
 	}
 	
-	public EmployeePayrollData addEmployeeToPayroll(String name, Double salary, LocalDate startDate, char gender) {
+	public EmployeePayrollData addEmployeeToPayroll(String name, Double salary, LocalDate startDate, char gender,String address, String phoneNumber, String departemntId, int companyId) {
 		int employeeID = -1;
 		EmployeePayrollData employeePayrollData = null;
 		Connection connection = null;
@@ -167,8 +167,30 @@ public class EmployeePayrollDBService {
 		}
 		
 		try (Statement statement = connection.createStatement();){
-			String sql = String.format("INSERT INTO employee_payroll(name,gender,salary,start)VALUES('%s','%s','%2f','%s')",name,gender,
-					salary,startDate.toString());
+			String sql = String.format("select * from company where company_id = %d",companyId);
+			ResultSet result = statement.executeQuery(sql);
+			if(result.next() == false) {
+				throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Company with id:"+companyId+" not present");
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		
+		try (Statement statement = connection.createStatement();){
+			String sql = String.format("select * from department where department_id = '%s'",departemntId);
+			ResultSet result = statement.executeQuery(sql);
+			if(result.next() == false) {
+				throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "department with id:"+departemntId+" not present");
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		
+		try (Statement statement = connection.createStatement();){
+			String sql = String.format("INSERT INTO employee(company_id,name,gender,address,phoneNumber,start)VALUES(%d,'%s','%s','%s',%d,'%s')",companyId,name,
+					gender,address,Long.valueOf(phoneNumber), startDate.toString());
 			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
 			if(result == 1) {
 				ResultSet resultSet = statement.getGeneratedKeys();
@@ -181,6 +203,7 @@ public class EmployeePayrollDBService {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+			e.printStackTrace();
 			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
 		}
 		
@@ -189,7 +212,7 @@ public class EmployeePayrollDBService {
 			double taxablePay = salary - deductions;
 			double tax = taxablePay * 0.1;
 			double netPay = salary - tax;
-			String sql = String.format("INSERT INTO payroll_details(employee_id, basicPay, deductions, taxablePay, incomeTax, netPay)VALUES(%d,%2f,%2f,%2f,%2f,%2f)",
+			String sql = String.format("INSERT INTO payroll(employee_id, basicPay, deductions, taxablePay, incomeTax, netPay)VALUES(%d,%2f,%2f,%2f,%2f,%2f)",
 					employeeID,salary,deductions,taxablePay,tax,netPay);
 			int result = statement.executeUpdate(sql);
 			if(result == 1) {
