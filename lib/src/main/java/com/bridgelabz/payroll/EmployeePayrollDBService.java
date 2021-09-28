@@ -187,7 +187,7 @@ public class EmployeePayrollDBService {
 		}
 		
 		try (Statement statement = connection.createStatement();){
-			String sql = String.format("INSERT INTO employee(company_id,name,gender,address,phoneNumber,start)VALUES(%d,'%s','%s','%s',%d,'%s')",companyId,name,
+			String sql = String.format("INSERT INTO employee(company_id,name,gender,address,phoneNumber,start,is_active)VALUES(%d,'%s','%s','%s',%d,'%s',true)",companyId,name,
 					gender,address,Long.valueOf(phoneNumber), startDate.toString());
 			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
 			if(result == 1) {
