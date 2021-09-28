@@ -1,5 +1,6 @@
 package com.bridgelabz.payroll;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class EmployeePayrollService {
@@ -52,8 +53,10 @@ public class EmployeePayrollService {
 		System.out.println("\n writing Employee payroll roaster to console \n"+ employeePayrollList);
 		else if(ioService.equals(IOService.FILE_IO))
 			new EmployeePayrollFileIOService().writeData(employeePayrollList);
-		else if(ioService.equals(IOService.DB_IO))
-			employeePayrollDBService.writeDB(employeePayrollList);
+	}
+	
+	public void addEmployeeToPayroll(String name, Double salary, LocalDate startDate,char gender) {
+		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,salary,startDate,gender));
 	}
 	
 	
