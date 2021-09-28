@@ -55,6 +55,19 @@ public class EmployeePayrollServiceTest {
 	}
 	
 	@Test
+	public void givenDepartment_WhenInserted_ShouldReturnOne(){
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		int result = employeePayrollService.insertDepartment(new Department( "D004","Engineering" ,"Virat"));
+		Assert.assertEquals(1,result);
+	}
+	@Test
+	public void givenCompany_WhenInserted_ShouldReturnOne(){
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		int result = employeePayrollService.insertCompany(new Company( "Uber",2));
+		Assert.assertEquals(1,result);
+	}
+	
+	@Test
 	public void givenNewSalaryForEmpoyee_WhenUpdated_ShouldSyncWithDB()
 	{
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
