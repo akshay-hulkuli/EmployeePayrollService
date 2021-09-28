@@ -42,7 +42,7 @@ public class EmployeePayrollServiceTest {
 
 	
 	@Test
-	public void givenListOfEmployees_WhenInserted_ShouldMatchEmployeeEntries() {
+	public void givenEmployee_WhenInserted_ShouldMatchEmployeeEntries() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
 		String date = "16/08/2019";
 		LocalDate startDate = LocalDate.parse(date, formatter);
