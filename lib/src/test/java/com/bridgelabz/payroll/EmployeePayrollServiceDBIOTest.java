@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class EmployeePayrollServiceDBIOTest {
 	int size = 3;
@@ -33,6 +34,40 @@ public class EmployeePayrollServiceDBIOTest {
 		employeePayrollService.addEmployeeToPayroll("arun",100000.00,startDate,'M',"bengaluru","8974561236","D001",1);
 		boolean result = employeePayrollService.checkEmployeePayrollInsyncWithDB("arun");
 		Assert.assertTrue(result);
+	}
+	
+	@Test
+	public void givenEmployeeWithWrongDepartment_WhenInserted_ShouldMatchEmployeeEntries() {
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+		String date = "16/08/2019";
+		LocalDate startDate = LocalDate.parse(date, formatter);
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
+		try {
+			employeePayrollService.addEmployeeToPayroll("arun",100000.00,startDate,'M',"bengaluru","8974561236","D0010",1);
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(EmployeePayrollException.class);
+		}
+		catch(EmployeePayrollException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void givenEmployeeWithWrongCompany_WhenInserted_ShouldMatchEmployeeEntries() {
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+		String date = "16/08/2019";
+		LocalDate startDate = LocalDate.parse(date, formatter);
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
+		try {
+			employeePayrollService.addEmployeeToPayroll("arun",100000.00,startDate,'M',"bengaluru","8974561236","D0010",10);
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(EmployeePayrollException.class);
+		}
+		catch(EmployeePayrollException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	@Test
