@@ -55,8 +55,8 @@ public class EmployeePayrollService {
 			new EmployeePayrollFileIOService().writeData(employeePayrollList);
 	}
 	
-	public void addEmployeeToPayroll(String name, Double salary, LocalDate startDate,char gender) {
-		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,salary,startDate,gender));
+	public void addEmployeeToPayroll(String name, Double salary, LocalDate startDate,char gender,String address, String phoneNumber, String deptId, int companyId) {
+		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,salary,startDate,gender,address,phoneNumber,deptId,companyId));
 	}
 	
 	
