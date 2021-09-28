@@ -72,7 +72,7 @@ public class EmployeePayrollDBService {
 	
 	}
 	
-	public EmployeePayrollData addEmployeeToPayroll(String name, Double salary, LocalDate startDate, char gender) {
+	public EmployeePayrollData addEmployeeToPayrollUC7(String name, Double salary, LocalDate startDate, char gender) {
 		int employeeID = -1;
 		EmployeePayrollData employeePayrollData = null;
 		String sql = String.format("INSERT INTO employee_payroll(name,gender,salary,start)VALUES('%s','%s','%2f','%s')",name,gender,
@@ -92,6 +92,48 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 		System.out.println(employeePayrollData);
+		return employeePayrollData;
+	}
+	
+	public EmployeePayrollData addEmployeeToPayroll(String name, Double salary, LocalDate startDate, char gender) {
+		int employeeID = -1;
+		EmployeePayrollData employeePayrollData = null;
+		Connection connection = null;
+		try {
+			connection = this.getConnection();
+		}
+		catch(Exception e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.FAILED_TO_CONNECT, "couldn't establish connection");
+		}
+		
+		try (Statement statement = connection.createStatement();){
+			String sql = String.format("INSERT INTO employee_payroll(name,gender,salary,start)VALUES('%s','%s','%2f','%s')",name,gender,
+					salary,startDate.toString());
+			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+			if(result == 1) {
+				ResultSet resultSet = statement.getGeneratedKeys();
+				if(resultSet.next()) employeeID = resultSet.getInt(1);
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		
+		try(Statement statement = connection.createStatement();){
+			double deductions = salary * 0.2;
+			double taxablePay = salary - deductions;
+			double tax = taxablePay * 0.1;
+			double netPay = salary - tax;
+			String sql = String.format("INSERT INTO payroll_details(employee_id, basicPay, deductions, taxablePay, incomeTax, netPay)VALUES(%d,%2f,%2f,%2f,%2f,%2f)",
+					employeeID,salary,deductions,taxablePay,tax,netPay);
+			int result = statement.executeUpdate(sql);
+			if(result == 1) {
+				employeePayrollData = new EmployeePayrollData(employeeID, name, gender,salary, startDate);
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
 		return employeePayrollData;
 	}
 	
