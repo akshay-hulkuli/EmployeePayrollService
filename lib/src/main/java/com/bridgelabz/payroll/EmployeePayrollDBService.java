@@ -72,6 +72,29 @@ public class EmployeePayrollDBService {
 	
 	}
 	
+	public EmployeePayrollData addEmployeeToPayroll(String name, Double salary, LocalDate startDate, char gender) {
+		int employeeID = -1;
+		EmployeePayrollData employeePayrollData = null;
+		String sql = String.format("INSERT INTO employee_payroll(name,gender,salary,start)VALUES('%s','%s','%2f','%s')",name,gender,
+				salary,startDate.toString());
+		try {
+			Connection connection = this.getConnection();
+			Statement statement = connection.createStatement();
+			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+			if(result == 1) {
+				ResultSet resultSet = statement.getGeneratedKeys();
+				if(resultSet.next()) employeeID = resultSet.getInt(1);
+			}
+			connection.close();
+			employeePayrollData = new EmployeePayrollData(employeeID, name, gender,salary, startDate);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println(employeePayrollData);
+		return employeePayrollData;
+	}
+	
 	public void writeDB(List<EmployeePayrollData> employees) {
 		employees.stream().forEach(employee ->{
 			String sql = String.format("INSERT INTO employee_payroll(name,gender,salary,start)VALUES('%s','%s','%2f','%s')",employee.name,employee.gender,
@@ -107,21 +130,7 @@ public class EmployeePayrollDBService {
 		return count;
 	}
 
-	public List<EmployeePayrollData> getEmployeePayrollData(String name) {
-		List<EmployeePayrollData> employeePayrollDataList = null;
-		if(this.employeePayrollDataStatement == null) {
-			this.prepareStatementForEmployeeData();
-		}
-		try {
-			employeePayrollDataStatement.setString(1, name);
-			ResultSet resultSet = employeePayrollDataStatement.executeQuery();
-			employeePayrollDataList = this.getEmployeePayrollData(resultSet);
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
-		}
-		return employeePayrollDataList;
-	}
+	
 	
 	private List<EmployeePayrollData> getEmployeePayrollData(ResultSet resultSet) {
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
@@ -140,6 +149,21 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 		return employeePayrollList;
+	}
+	public List<EmployeePayrollData> getEmployeePayrollData(String name) {
+		List<EmployeePayrollData> employeePayrollDataList = null;
+		if(this.employeePayrollDataStatement == null) {
+			this.prepareStatementForEmployeeData();
+		}
+		try {
+			employeePayrollDataStatement.setString(1, name);
+			ResultSet resultSet = employeePayrollDataStatement.executeQuery();
+			employeePayrollDataList = this.getEmployeePayrollData(resultSet);
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return employeePayrollDataList;
 	}
 
 	private void prepareStatementForEmployeeData() {
@@ -260,5 +284,7 @@ public class EmployeePayrollDBService {
 		return countMap;
 	}
 
+	
+	
 
 }
