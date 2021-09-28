@@ -24,8 +24,6 @@ public class EmployeePayrollDBService {
 	
 	public List<EmployeePayrollData> readData() {
 		String sql = "SELECT * from employee e , payroll p where e.id = p.employee_id;";
-		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
-		HashMap<Integer, Company> companyMap = getCompany();
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
 		try {
 			Connection connection = this.getConnection();
@@ -215,9 +213,6 @@ public class EmployeePayrollDBService {
 			String sql = String.format("INSERT INTO payroll(employee_id, basicPay, deductions, taxablePay, incomeTax, netPay)VALUES(%d,%2f,%2f,%2f,%2f,%2f)",
 					employeeID,salary,deductions,taxablePay,tax,netPay);
 			int result = statement.executeUpdate(sql);
-			if(result == 1) {
-				employeePayrollData = new EmployeePayrollData(employeeID, name, gender,salary, startDate);
-			}
 		}
 		catch(SQLException e) {
 			try {
@@ -227,6 +222,24 @@ public class EmployeePayrollDBService {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
+		HashMap<Integer, Company> companyMap = getCompany();
+		try (Statement statement = connection.createStatement();){
+			String sql = String.format("INSERT INTO employee_department(employee_id,department_id)VALUES(%d,'%s')",employeeID,departemntId);
+			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+			if(result == 1) {
+				employeePayrollData = new EmployeePayrollData(employeeID, name, gender,salary, address, phoneNumber,startDate,companyMap.get(companyId),departmentList.get(departemntId));
+			}
+		}
+		catch(SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
 			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
 		}
 		try {
@@ -243,6 +256,36 @@ public class EmployeePayrollDBService {
 				}
 		}
 		return employeePayrollData;
+	}
+	
+	public int insertDepartment(Department dept) {
+		int result = 0;
+			String sql = String.format("INSERT INTO department(department_name,department_id,hod)VALUES('%s','%s','%s')",dept.getDepartmentName(),
+					dept.getDepartmentName(),dept.getHod());
+			try {
+				Connection connection = this.getConnection();
+				Statement statement = connection.createStatement();
+				result = statement.executeUpdate(sql);
+				connection.close();
+			}
+			catch(SQLException e) {
+				e.printStackTrace();
+			}
+		return result;
+	}
+	public int insertCompany(Company company) {
+		int result = 0;
+			String sql = String.format("INSERT INTO company(company_name,company_id)VALUES('%s',%d)",company.getCompanyName(),company.getCompanyId());
+			try {
+				Connection connection = this.getConnection();
+				Statement statement = connection.createStatement();
+				result = statement.executeUpdate(sql);
+				connection.close();
+			}
+			catch(SQLException e) {
+				e.printStackTrace();
+			}
+		return result;
 	}
 	
 	public void writeDB(List<EmployeePayrollData> employees) {
@@ -263,7 +306,7 @@ public class EmployeePayrollDBService {
 	}
 	
 	public int countEntries() {
-		String sql = "SELECT * FROM employee_payroll";
+		String sql = "SELECT * FROM employee";
 		int count  =0;
 		try {
 			Connection connection = this.getConnection();
