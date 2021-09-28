@@ -31,18 +31,7 @@ public class EmployeePayrollDBService {
 			Connection connection = this.getConnection();
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
-			while(resultSet.next()) {
-				int id = resultSet.getInt("id");
-				String name = resultSet.getString("name");
-				char gender = resultSet.getString("gender").charAt(0);
-				double basicSalary = resultSet.getDouble("basicPay");
-				LocalDate startDate = resultSet.getDate("start").toLocalDate();
-				String phoneNumber = String.valueOf(resultSet.getLong("phoneNumber"));
-				int company_id = resultSet.getInt("company_id");
-				String address = resultSet.getString("address");
-				employeePayrollList.add(new EmployeePayrollData(id, name, gender, basicSalary, address, phoneNumber, startDate,companyMap.get(company_id) , departmentList.get(id)));
-			}
-			
+			employeePayrollList = getEmployeePayrollData(resultSet);
 			connection.close();
 		}
 		catch(SQLException e) {
@@ -131,11 +120,10 @@ public class EmployeePayrollDBService {
 	}
 	
 	private int updateEmployeeDataUsingStatement(String name,double salary) {
-		String sqlString = String.format("update employee_payroll set salary = %2f where name = '%s';",salary,name);
+		String sqlString = String.format("update payroll set basicPay = %2f where employee_id IN (select id from employee where name = '%s') ;",salary,name);
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
 			return statement.executeUpdate(sqlString);
-		
 		}
 		catch(SQLException e) {
 			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.UPDATE_FAILED, "Failed to update the given data");
@@ -272,16 +260,20 @@ public class EmployeePayrollDBService {
 	
 	
 	private List<EmployeePayrollData> getEmployeePayrollData(ResultSet resultSet) {
+		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
+		HashMap<Integer, Company> companyMap = getCompany();
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
-		
 		try {
 			while(resultSet.next()) {
 				int id = resultSet.getInt("id");
 				String name = resultSet.getString("name");
 				char gender = resultSet.getString("gender").charAt(0);
-				double basicSalary = resultSet.getDouble("salary");
+				double basicSalary = resultSet.getDouble("basicPay");
 				LocalDate startDate = resultSet.getDate("start").toLocalDate();
-				employeePayrollList.add(new EmployeePayrollData(id, name, gender,basicSalary, startDate));
+				String phoneNumber = String.valueOf(resultSet.getLong("phoneNumber"));
+				int company_id = resultSet.getInt("company_id");
+				String address = resultSet.getString("address");
+				employeePayrollList.add(new EmployeePayrollData(id, name, gender, basicSalary, address, phoneNumber, startDate,companyMap.get(company_id) , departmentList.get(id)));
 			}
 		}
 		catch(SQLException e) {
@@ -308,7 +300,7 @@ public class EmployeePayrollDBService {
 	private void prepareStatementForEmployeeData() {
 		try {
 			Connection connection = this.getConnection();
-			String sqlStatement = "select * from employee_payroll where name = ?;";
+			String sqlStatement = "select * from employee e, payroll p where e.id = p.employee_id and name = ?;";
 			employeePayrollDataStatement = connection.prepareStatement(sqlStatement);
 		}
 		catch(SQLException e) {
