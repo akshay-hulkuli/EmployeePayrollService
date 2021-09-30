@@ -114,19 +114,27 @@ public class EmployeePayrollDBService {
 	}
 	
 	public int updateEmployeeSalary(String name, double salary) throws EmployeePayrollException {
-		return this.updateEmployeeDataUsingStatement(name,salary);
+		 return this.updateEmployeeDataUsingStatement(name,salary);
 	}
 	
 	private int updateEmployeeDataUsingStatement(String name,double salary) {
-		String sqlString = String.format("update payroll set basicPay = %2f where employee_id IN (select id from employee where name = '%s' AND is_active = true) ;",salary,name);
+		int result = 0;
+		double deductions = salary * 0.2;
+		double taxablePay = salary - deductions;
+		double tax = taxablePay * 0.1;
+		double netPay = salary - tax;
+		String sqlString = String.format("update payroll set basicPay = %2f, deductions = %2f, "
+				+ "taxablePay = %2f, incomeTax = %2f, netPay = %2f  where employee_id IN (select id from employee where name = '%s' AND "
+				+ "is_active = true) ;",salary,deductions,taxablePay,tax,netPay,name);
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
-			return statement.executeUpdate(sqlString);
+			result = statement.executeUpdate(sqlString);
 		}
 		catch(SQLException e) {
 			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.UPDATE_FAILED, "Failed to update the given data");
 		}
-	
+		
+		return result;
 	}
 	
 	public EmployeePayrollData addEmployeeToPayrollUC7(String name, Double salary, LocalDate startDate, char gender) {
@@ -222,8 +230,10 @@ public class EmployeePayrollDBService {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			e.printStackTrace();
 			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
 		}
+		
 		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
 		HashMap<Integer, Company> companyMap = getCompany();
 		try (Statement statement = connection.createStatement();){
@@ -257,6 +267,7 @@ public class EmployeePayrollDBService {
 		}
 		return employeePayrollData;
 	}
+	
 	
 	public int insertDepartment(Department dept) {
 		int result = 0;
